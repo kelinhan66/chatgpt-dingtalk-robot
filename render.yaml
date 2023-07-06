@@ -5,7 +5,7 @@ services:
     env: node
     rootDir: .
     autoDeploy: false
-    repo: https://github.com/sytpb/chatgpt-dingtalk-robot.git # optional
+    repo: https://github.com/kelinhan66/chatgpt-dingtalk-robot.git # optional
     region: singapore     # optional (defaults to oregon)
     plan: free            # optional (defaults to starter instance type)
     branch: beta          # optional (defaults to master)
