@@ -39,7 +39,7 @@ export default class TextChat extends Chat {
         const response = await axios.post(url, data, config);
         console.log(response.data); // 打印响应数据
 
-        res.send("OK");
+        //res.send("OK");
     }
 
     async toGroup(conversationID, robotCode, answer) {
