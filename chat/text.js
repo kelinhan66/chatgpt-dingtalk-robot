@@ -39,7 +39,7 @@ export default class TextChat extends Chat {
         
         console.log("返回值1：",response);
         console.log("返回值2：",response.data);
-        console.log("返回值3：",JSON.stringify({ "content": answer });
+        console.log("返回值3：",JSON.stringify({ "content": answer }));
         //debug.out(response.data); // 打印响应数据
 
         return response.data;
