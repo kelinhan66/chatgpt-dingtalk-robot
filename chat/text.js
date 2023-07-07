@@ -36,8 +36,11 @@ export default class TextChat extends Chat {
         };
 
         const response = await axios.post(url, data, config);
-        console.log(response)
-        debug.out(response.data); // 打印响应数据
+        
+        console.log("返回值1：",response);
+        console.log("返回值2：",response.data);
+        console.log("返回值3：",JSON.stringify({ "content": answer });
+        //debug.out(response.data); // 打印响应数据
 
         return response.data;
     }
@@ -63,7 +66,7 @@ export default class TextChat extends Chat {
                 'x-acs-dingtalk-access-token': token
             }
         };
-
+       
         return axios.post(url, data, config);
     }
 
@@ -76,13 +79,13 @@ export default class TextChat extends Chat {
             markdown = MDUserMsg(answer.slice(0,30), answer);
         else if (info.conversationType === '2')
             markdown = MDGroupMsg(answer.slice(0,30), senderId, answer);
-        console.log(markdown)
+        console.log("发送的markdown值：",markdown);
         const headers = {
             'Content-Type': 'application/json',
             'url': webHook
         };
         const result = res.set(headers).send(JSON.stringify(markdown));
-        console.log(result)
+        console.log("最终发送值：",result);
         debug.log(result);
     }
 
@@ -104,7 +107,7 @@ export default class TextChat extends Chat {
             const result = await openai.ctChat(context);
             console.log(result)
             const message = result?.data?.choices[0]?.message;
-            console.log(message)
+            console.log("发送的result值：",message);
             debug.log(message?.content);
             if (!message?.content) {
                 res.status(400).send('No answer found');
@@ -112,7 +115,7 @@ export default class TextChat extends Chat {
             }
 
             const answer = message.content;
-            console.log(answer)
+            console.log("发送的answer值：",answer);
             await this.reply(info, answer, res);
             
             return;
