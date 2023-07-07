@@ -14,7 +14,7 @@ export default class TextChat extends Chat {
         this.host = 'https://api.dingtalk.com';
     }
 
-    async toUser(staffID, robotCode, answer) {
+    async toUser(staffID, robotCode, answer, res) {
         /*response to dingtalk*/
         const token = await getAccessToken();
         debug.out(answer);
@@ -35,14 +35,8 @@ export default class TextChat extends Chat {
             }
         };
 
-        const response = await axios.post(url, data, config);
-        
-        console.log("返回值1：",response);
-        console.log("返回值2：",response.data);
-        console.log("返回值3：",JSON.stringify({ "content": answer }));
-        //debug.out(response.data); // 打印响应数据
-
-        return response;
+        await axios.post(url, data, config);
+        res.send("OK");
     }
 
     async toGroup(conversationID, robotCode, answer) {
@@ -66,12 +60,8 @@ export default class TextChat extends Chat {
                 'x-acs-dingtalk-access-token': token
             }
         };
-        response = axios.post(url, data, config);
-        console.log("返回值4：",response);
-        console.log("返回值5：",response.data);
-        console.log("返回值6：",JSON.stringify({ "content": answer }));
-        return response;
-        //axios.post(url, data, config);
+
+        return axios.post(url, data, config);
     }
 
     async reply(info, answer, res) {
@@ -83,51 +73,39 @@ export default class TextChat extends Chat {
             markdown = MDUserMsg(answer.slice(0,30), answer);
         else if (info.conversationType === '2')
             markdown = MDGroupMsg(answer.slice(0,30), senderId, answer);
-        console.log("发送的markdown值：",markdown);
-        const headers = {
+        
+        res.set({
             'Content-Type': 'application/json',
             'url': webHook
-        };
-        const result = res.set(headers).send(JSON.stringify(markdown));
-        console.log("最终发送值：",result);
+        });
+        const result = res.send(JSON.stringify(markdown));
+        console.log("发送的result值：",result);
         debug.log(result);
     }
 
 
-    async process(info, res) {
+    process(info, res) {
 
         const question = info?.text?.content;
-
-        if (!question) {
-            res.status(400).send('Missing question');
-            return;
-        }
-
-        const context = Session.update(info.conversationId, {"role":"user" ,"content":question});
-        debug.out(context);
+        let context = [{"role":"user" ,"content":question}];
+        //const staffID = info?.senderStaffId;
+        const robotCode = info?.robotCode;
 
         const openai = new OpenAI();
-        try {
-            const result = await openai.ctChat(context);
-            console.log(result)
+        if(process.env.CHAT_HISTORY === "yes")
+            context = Session.update(info.conversationId, {"role":"user" ,"content":question});
+        debug.out(context);
+        
+        openai.ctChat(context).then(result => {
             const message = result?.data?.choices[0]?.message;
-            console.log("发送的result值：",message);
             debug.log(message?.content);
-            if (!message?.content) {
-                res.status(400).send('No answer found');
+            if (!message?.content)
                 return;
-            }
 
             const answer = message.content;
             console.log("发送的answer值：",answer);
-            await this.reply(info, answer, res);
-            
-            return;
-        } catch (err) {
-            debug.error(err);
-            res.status(500).send('Internal server error');
-            return;
-        }
+            this.reply(info, answer, res);
+        });
     }
 
 }
