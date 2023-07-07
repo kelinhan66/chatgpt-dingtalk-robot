@@ -14,7 +14,7 @@ export default class TextChat extends Chat {
         this.host = 'https://api.dingtalk.com';
     }
 
-    async toUser(staffID, robotCode, answer, res) {
+    async toUser(staffID, robotCode, answer) {
         /*response to dingtalk*/
         const token = await getAccessToken();
         debug.out(answer);
@@ -35,11 +35,10 @@ export default class TextChat extends Chat {
             }
         };
 
-        await axios.post(url, data, config);
         const response = await axios.post(url, data, config);
-        console.log(response.data); // 打印响应数据
+        debug.out(response.data); // 打印响应数据
 
-        //res.send("OK");
+        return response.data;
     }
 
     async toGroup(conversationID, robotCode, answer) {
@@ -76,37 +75,46 @@ export default class TextChat extends Chat {
             markdown = MDUserMsg(answer.slice(0,30), answer);
         else if (info.conversationType === '2')
             markdown = MDGroupMsg(answer.slice(0,30), senderId, answer);
-        
-        res.set({
+
+        const headers = {
             'Content-Type': 'application/json',
             'url': webHook
-        });
-        const result = res.send(JSON.stringify(markdown));
+        };
+        const result = res.set(headers).send(JSON.stringify(markdown));
         debug.log(result);
     }
 
 
-    process(info, res) {
+    async process(info, res) {
 
         const question = info?.text?.content;
-        let context = [{"role":"user" ,"content":question}];
-        //const staffID = info?.senderStaffId;
-        const robotCode = info?.robotCode;
+
+        if (!question) {
+            res.status(400).send('Missing question');
+            return;
+        }
+
+        const context = Session.update(info.conversationId, {"role":"user" ,"content":question});
+        debug.out(context);
 
         const openai = new OpenAI();
-        if(process.env.CHAT_HISTORY === "yes")
-            context = Session.update(info.conversationId, {"role":"user" ,"content":question});
-        debug.out(context);
-        
-        openai.ctChat(context).then(result => {
+        try {
+            const result = await openai.ctChat(context);
             const message = result?.data?.choices[0]?.message;
             debug.log(message?.content);
-            if (!message?.content)
+            if (!message?.content) {
+                res.status(400).send('No answer found');
                 return;
+            }
 
             const answer = message.content;
-            this.reply(info, answer, res);
-        });
+            await this.reply(info, answer, res);
+            return;
+        } catch (err) {
+            debug.error(err);
+            res.status(500).send('Internal server error');
+            return;
+        }
     }
 
 }
