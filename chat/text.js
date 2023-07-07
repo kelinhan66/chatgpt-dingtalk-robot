@@ -36,6 +36,7 @@ export default class TextChat extends Chat {
         };
 
         const response = await axios.post(url, data, config);
+        console.log(response)
         debug.out(response.data); // 打印响应数据
 
         return response.data;
@@ -75,12 +76,13 @@ export default class TextChat extends Chat {
             markdown = MDUserMsg(answer.slice(0,30), answer);
         else if (info.conversationType === '2')
             markdown = MDGroupMsg(answer.slice(0,30), senderId, answer);
-
+        console.log(markdown)
         const headers = {
             'Content-Type': 'application/json',
             'url': webHook
         };
         const result = res.set(headers).send(JSON.stringify(markdown));
+        console.log(result)
         debug.log(result);
     }
 
@@ -100,7 +102,9 @@ export default class TextChat extends Chat {
         const openai = new OpenAI();
         try {
             const result = await openai.ctChat(context);
+            console.log(result)
             const message = result?.data?.choices[0]?.message;
+            console.log(message)
             debug.log(message?.content);
             if (!message?.content) {
                 res.status(400).send('No answer found');
@@ -108,7 +112,9 @@ export default class TextChat extends Chat {
             }
 
             const answer = message.content;
+            console.log(answer)
             await this.reply(info, answer, res);
+            
             return;
         } catch (err) {
             debug.error(err);
