@@ -42,7 +42,7 @@ export default class TextChat extends Chat {
         console.log("返回值3：",JSON.stringify({ "content": answer }));
         //debug.out(response.data); // 打印响应数据
 
-        return response.data;
+        return response;
     }
 
     async toGroup(conversationID, robotCode, answer) {
@@ -66,8 +66,12 @@ export default class TextChat extends Chat {
                 'x-acs-dingtalk-access-token': token
             }
         };
-       
-        return axios.post(url, data, config);
+        response = axios.post(url, data, config);
+        console.log("返回值4：",response);
+        console.log("返回值5：",response.data);
+        console.log("返回值6：",JSON.stringify({ "content": answer }));
+        return response;
+        //axios.post(url, data, config);
     }
 
     async reply(info, answer, res) {
