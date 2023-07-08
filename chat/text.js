@@ -1,3 +1,4 @@
+
 "use strict"
 import axios from "axios";
 import Chat from "./chat.js";
@@ -30,7 +31,7 @@ export default class TextChat extends Chat {
 
         const config = {
             headers: {
-                'Accept': "application/json",
+                //'Accept': "application/json",
                 'Content-Type': "application/json",
                 'x-acs-dingtalk-access-token': token
             }
@@ -57,12 +58,12 @@ export default class TextChat extends Chat {
 
         const config = {
             headers: {
-                'Accept': "application/json",
+                //'Accept': "application/json",
                 'Content-Type': "application/json",
                 'x-acs-dingtalk-access-token': token
             }
         };
-
+        
         return axios.post(url, data, config);
     }
 
@@ -80,6 +81,8 @@ export default class TextChat extends Chat {
             'Content-Type': 'application/json',
             'url': webHook
         });
+
+        console.log("发送的webHook值：",webHook);
         console.log("发送的res值：",res);
         const result = res.send(JSON.stringify(markdown));
         console.log("发送的result值：",result);
