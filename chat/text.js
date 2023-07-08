@@ -17,6 +17,7 @@ export default class TextChat extends Chat {
     async toUser(staffID, robotCode, answer, res) {
         /*response to dingtalk*/
         const token = await getAccessToken();
+        console.log("发送的token值：",token);
         debug.out(answer);
 
         const data = {
@@ -42,6 +43,7 @@ export default class TextChat extends Chat {
     async toGroup(conversationID, robotCode, answer) {
         /*response to dingtalk*/
         const token = await getAccessToken();
+        console.log("发送的token值：",token);
         debug.out(answer);
 
         const data = {
@@ -78,6 +80,7 @@ export default class TextChat extends Chat {
             'Content-Type': 'application/json',
             'url': webHook
         });
+        console.log("发送的res值：",res);
         const result = res.send(JSON.stringify(markdown));
         console.log("发送的result值：",result);
         debug.log(result);
