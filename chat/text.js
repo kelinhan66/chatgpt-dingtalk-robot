@@ -31,7 +31,7 @@ export default class TextChat extends Chat {
 
         const config = {
             headers: {
-                //'Accept': "application/json",
+                'Accept': "application/json",
                 'Content-Type': "application/json",
                 'x-acs-dingtalk-access-token': token
             }
@@ -58,7 +58,7 @@ export default class TextChat extends Chat {
 
         const config = {
             headers: {
-                //'Accept': "application/json",
+                'Accept': "application/json",
                 'Content-Type': "application/json",
                 'x-acs-dingtalk-access-token': token
             }
